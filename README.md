@@ -215,15 +215,114 @@ yarn typecheck
 }
 ```
 
+## 🎯 Design Pattern Implementation
+
+This project demonstrates the **Command Design Pattern** - a behavioral design pattern that encapsulates requests as objects, allowing you to parameterize clients with different requests and queue operations.
+
+### Command Pattern Components
+
+1. **Command Interface**: JSON message structure defining `command` and `params`
+2. **Concrete Commands**: Specific commands like `notify`, `get_titles_of_active_editors`
+3. **Invoker**: Python client (`VSCodeBridge`) that creates and sends commands
+4. **Receiver**: VS Code extension (`GenericWebSocketServer`) that executes commands
+5. **Client**: Python scripts that use the bridge to perform operations
+
+### Benefits of Command Pattern
+
+- **Decoupling**: Python scripts don't need to know VS Code API details
+- **Extensibility**: New commands can be added without modifying existing code
+- **Undo/Redo Potential**: Commands could be stored and replayed
+- **Queuing**: Multiple commands can be batched and executed sequentially
+- **Logging**: All command execution can be logged for debugging
+
+## 🔄 Command Encoding/Decoding Process
+
+### Data Flow Architecture
+
+```mermaid
+sequenceDiagram
+    participant Python as Python Script
+    participant Bridge as VSCodeBridge
+    participant WS as WebSocket
+    participant Server as VS Code Extension
+    participant VSCode as VS Code API
+    
+    Python->>+Bridge: bridge.notify("Hello")
+    Bridge->>Bridge: Encode to JSON command
+    Note over Bridge: {"command": "notify", "params": {"message": "Hello"}}
+    Bridge->>+WS: Send JSON over WebSocket
+    WS->>+Server: Forward raw message
+    Server->>Server: Parse JSON & validate
+    Server->>Server: Route to handleNotifyCommand()
+    Server->>+VSCode: vscode.window.showInformationMessage()
+    VSCode-->>-Server: Success/Error
+    Server->>Server: Create response JSON
+    Note over Server: {"result": null} or {"error": {...}}
+    Server->>-WS: Send response JSON
+    WS->>-Bridge: Forward response
+    Bridge->>Bridge: Parse JSON & check errors
+    Bridge-->>-Python: Return result or throw exception
+```
+
+### Command Encoding Process
+
+1. **Python Method Call**: `bridge.notify("Hello from Python!")`
+2. **Command Object Creation** (`vscode_bridge.py:146-152`):
+   ```python
+   command = {
+       "command": "notify",
+       "params": {"message": message}
+   }
+   ```
+3. **JSON Serialization** (`vscode_bridge.py:114`): `json.dumps(message)`
+4. **WebSocket Transmission**: Raw JSON string sent over WebSocket connection
+5. **VS Code Reception** (`websocketServer.ts:64`): Buffer converted to string
+6. **JSON Parsing** (`websocketServer.ts:71`): `JSON.parse(message)`
+7. **Command Validation**: Check for required `command` field and valid structure
+
+### Command Decoding & Execution Process
+
+1. **Command Router** (`websocketServer.ts:183-217`): Switch statement routes to handler
+2. **Parameter Validation**: Each handler validates required parameters
+3. **VS Code API Call**: Handler calls appropriate VS Code API
+4. **Response Generation**: Success/error response object created
+5. **JSON Serialization**: Response serialized to JSON string
+6. **WebSocket Response**: JSON sent back to Python client
+7. **Python Parsing** (`vscode_bridge.py:118`): JSON parsed and errors checked
+8. **Result Extraction**: Return `result` field or raise `VSCodeBridgeError`
+
+### Error Handling Flow
+
+Commands can fail at multiple stages:
+
+- **Connection Errors**: WebSocket connection unavailable
+- **JSON Errors**: Malformed JSON in either direction  
+- **Validation Errors**: Missing or invalid command parameters
+- **Execution Errors**: VS Code API calls fail
+- **Application Errors**: No active editor, file not found, etc.
+
+Each error is encoded as:
+```json
+{
+  "error": {
+    "message": "Description of what went wrong",
+    "code": 400|404|500
+  }
+}
+```
+
 ## 🎓 Academic Value
 
 This project demonstrates several important software engineering concepts:
 
-1. **Inter-Process Communication**: WebSocket-based messaging between different runtimes
-2. **Protocol Design**: JSON-based command/response protocol
-3. **Error Handling**: Comprehensive error management in distributed systems
-4. **Client-Server Architecture**: Clear separation of concerns
-5. **Language Integration**: Bridging Python and TypeScript/JavaScript ecosystems
+1. **Command Design Pattern**: Encapsulating requests as objects for flexible execution
+2. **Inter-Process Communication**: WebSocket-based messaging between different runtimes
+3. **Protocol Design**: JSON-based command/response protocol with error handling
+4. **Error Propagation**: Comprehensive error management across distributed systems
+5. **Client-Server Architecture**: Clear separation of concerns between components
+6. **Language Integration**: Bridging Python and TypeScript/JavaScript ecosystems
+7. **Serialization/Deserialization**: JSON encoding/decoding for data transmission
+8. **Validation Patterns**: Parameter validation and type checking across boundaries
 
 ## 🔄 Extending the Bridge
 
