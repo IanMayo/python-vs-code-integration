@@ -1,0 +1,77 @@
+name: Release Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'yarn'
+        
+    - name: Get tag name
+      id: tag
+      run: |
+        TAG=${GITHUB_REF#refs/tags/}
+        VERSION=${TAG#v}
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+      
+    - name: Update package.json version
+      run: |
+        npm version ${{ steps.tag.outputs.version }} --no-git-tag-version
+        
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+      
+    - name: Compile extension
+      run: yarn compile
+      
+    - name: Install VSCE
+      run: npm install -g @vscode/vsce
+      
+    - name: Package extension
+      run: vsce package
+        
+    - name: Get VSIX filename
+      id: vsix
+      run: echo "filename=$(ls python-vscode-bridge-*.vsix)" >> $GITHUB_OUTPUT
+      
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Release ${{ steps.tag.outputs.tag }}
+        body: |
+          ## Python-VS Code Bridge ${{ steps.tag.outputs.tag }}
+          
+          ### Installation
+          Download the `.vsix` file and install it in VS Code:
+          ```bash
+          code --install-extension python-vscode-bridge-${{ steps.tag.outputs.tag }}.vsix
+          ```
+          
+          ### Quick Start
+          1. Install the extension
+          2. Run command: `Python Bridge: Open Demo Files`
+          3. Run command: `Python Bridge: Install Python Dependencies`
+          4. Execute demo: `python demo.py`
+          
+          ### What's included
+          - WebSocket bridge between Python and VS Code
+          - Complete Python client library
+          - Interactive demo scripts
+          - Example automation workflows
+        files: |
+          ${{ steps.vsix.outputs.filename }}
+        draft: false
+        prerelease: false

@@ -1,2 +1,6 @@
 node_modules
-workspace/python_client/__pycache__
+dist/
+*.vsix
+workspace/python_client/__pycache__/
+python_demos/examples/__pycache__/
+python_demos/python_client/__pycache__/

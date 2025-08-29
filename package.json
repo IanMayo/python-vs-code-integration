@@ -3,7 +3,7 @@
   "displayName": "Python-VS Code Bridge",
   "description": "Minimal demonstration of Python-to-VS Code communication via WebSocket",
   "version": "0.0.1",
-  "publisher": "demo",
+  "publisher": "your-publisher-id",
   "repository": {
     "type": "git",
     "url": "https://github.com/IanMayo/python-vs-code-integration.git"
@@ -30,6 +30,14 @@
       {
         "command": "python-vscode-bridge.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "python-vscode-bridge.openPythonDemo",
+        "title": "Python Bridge: Open Demo Files"
+      },
+      {
+        "command": "python-vscode-bridge.installPythonDeps",
+        "title": "Python Bridge: Install Python Dependencies"
       }
     ]
   },

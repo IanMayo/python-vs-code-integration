@@ -1,0 +1,12 @@
+.vscode/**
+.vscode-test/**
+src/**
+.gitignore
+yarn.lock
+.claude/**
+.eslintrc.json
+*.vsix
+workspace/**/*.py*
+workspace/test-file.txt
+*.md
+!python_demos/**

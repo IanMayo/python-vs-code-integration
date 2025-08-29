@@ -1,0 +1,12 @@
+Hello World from VS Code!
+
+This is a test file for the Python-VS Code Bridge demonstration.
+
+Some content to work with:
+- Line 1: This is important
+- Line 2: This contains an ERROR message
+- Line 3: This has a WARNING
+- Line 4: TODO: Fix this later
+- Line 5: Normal content
+
+The bridge should be able to read and modify this content.
