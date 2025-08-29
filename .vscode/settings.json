@@ -1,0 +1,10 @@
+{
+    "typescript.preferences.includePackageJsonAutoImports": "off",
+    "files.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "../workspace": true,
+        "../src": true,
+        "../package.json": true
+    }
+}
