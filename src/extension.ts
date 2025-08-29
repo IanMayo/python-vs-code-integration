@@ -37,7 +37,16 @@ export function activate(context: vscode.ExtensionContext) {
         const demoPath = path.join(context.extensionPath, 'python_demos');
         if (fs.existsSync(demoPath)) {
             const uri = vscode.Uri.file(demoPath);
-            await vscode.commands.executeCommand('vscode.openFolder', uri, { forceNewWindow: true });
+            const success = vscode.workspace.updateWorkspaceFolders(
+                vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders.length : 0,
+                0,
+                { uri: uri, name: 'Python Demos' }
+            );
+            if (success) {
+                vscode.window.showInformationMessage('Python demo folder added to workspace.');
+            } else {
+                vscode.window.showErrorMessage('Failed to add Python demo folder to workspace.');
+            }
         } else {
             vscode.window.showErrorMessage('Python demo files not found. Please reinstall the extension.');
         }
