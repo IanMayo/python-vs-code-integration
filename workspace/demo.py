@@ -15,10 +15,7 @@ import sys
 import os
 import time
 
-# Add the python_client directory to the path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'python_client'))
-
-from vscode_bridge import VSCodeBridge, VSCodeBridgeError
+from python_client.vscode_bridge import VSCodeBridge, VSCodeBridgeError
 
 def print_header(title: str):
     """Print a formatted section header."""
@@ -132,7 +129,9 @@ def demo_text_reading(bridge: VSCodeBridge, editors: list):
         print(f"❌ Error reading text: {e}")
         return None
 
-def demo_text_modification(bridge: VSCodeBridge, original_content: str):
+from typing import Optional
+
+def demo_text_modification(bridge: VSCodeBridge, original_content: Optional[str]):
     """Demo modifying text in the active editor."""
     print_header("4. TEXT MODIFICATION DEMO")
     

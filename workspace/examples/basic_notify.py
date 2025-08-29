@@ -9,10 +9,10 @@ from Python to VS Code.
 import sys
 import os
 
-# Add the python_client directory to the path so we can import the bridge
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'python_client'))
+# Add workspace root to Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from vscode_bridge import VSCodeBridge, VSCodeBridgeError
+from python_client.vscode_bridge import VSCodeBridge, VSCodeBridgeError
 
 def main():
     """Send a simple notification to VS Code."""

@@ -11,10 +11,10 @@ import os
 import time
 import re
 
-# Add the python_client directory to the path so we can import the bridge
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'python_client'))
+# Add workspace root to Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from vscode_bridge import VSCodeBridge, VSCodeBridgeError
+from python_client.vscode_bridge import VSCodeBridge, VSCodeBridgeError
 
 def analyze_file_content(filename: str, content: str) -> dict:
     """Analyze file content and return statistics."""
