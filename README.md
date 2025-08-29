@@ -15,18 +15,6 @@ This repository provides a **minimum reproducible example** of bidirectional com
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────┐    WebSocket     ┌──────────────────┐
-│                 │   (port 60123)   │                  │
-│  Python Script  │ ◄──────────────► │  VS Code         │
-│                 │    JSON Messages │  Extension       │
-└─────────────────┘                  └──────────────────┘
-```
-
-## 🔄 Command Encoding/Decoding Process
-
-### Data Flow Architecture
-
 ```mermaid
 sequenceDiagram
     participant Python as Python Script
