@@ -23,6 +23,35 @@ This repository provides a **minimum reproducible example** of bidirectional com
 └─────────────────┘                  └──────────────────┘
 ```
 
+## 🔄 Command Encoding/Decoding Process
+
+### Data Flow Architecture
+
+```mermaid
+sequenceDiagram
+    participant Python as Python Script
+    participant Bridge as VSCodeBridge
+    participant WS as WebSocket
+    participant Server as VS Code Extension
+    participant VSCode as VS Code API
+    
+    Python->>+Bridge: bridge.notify("Hello")
+    Bridge->>Bridge: Encode to JSON command
+    Note over Bridge: {"command": "notify", "params": {"message": "Hello"}}
+    Bridge->>+WS: Send JSON over WebSocket
+    WS->>+Server: Forward raw message
+    Server->>Server: Parse JSON & validate
+    Server->>Server: Route to handleNotifyCommand()
+    Server->>+VSCode: vscode.window.showInformationMessage()
+    VSCode-->>-Server: Success/Error
+    Server->>Server: Create response JSON
+    Note over Server: {"result": null} or {"error": {...}}
+    Server->>-WS: Send response JSON
+    WS->>-Bridge: Forward response
+    Bridge->>Bridge: Parse JSON & check errors
+    Bridge-->>-Python: Return result or throw exception
+```
+
 ### Components
 
 - **VS Code Extension** (`src/`): WebSocket server that handles commands  
@@ -235,34 +264,7 @@ This project demonstrates the **Command Design Pattern** - a behavioral design p
 - **Queuing**: Multiple commands can be batched and executed sequentially
 - **Logging**: All command execution can be logged for debugging
 
-## 🔄 Command Encoding/Decoding Process
 
-### Data Flow Architecture
-
-```mermaid
-sequenceDiagram
-    participant Python as Python Script
-    participant Bridge as VSCodeBridge
-    participant WS as WebSocket
-    participant Server as VS Code Extension
-    participant VSCode as VS Code API
-    
-    Python->>+Bridge: bridge.notify("Hello")
-    Bridge->>Bridge: Encode to JSON command
-    Note over Bridge: {"command": "notify", "params": {"message": "Hello"}}
-    Bridge->>+WS: Send JSON over WebSocket
-    WS->>+Server: Forward raw message
-    Server->>Server: Parse JSON & validate
-    Server->>Server: Route to handleNotifyCommand()
-    Server->>+VSCode: vscode.window.showInformationMessage()
-    VSCode-->>-Server: Success/Error
-    Server->>Server: Create response JSON
-    Note over Server: {"result": null} or {"error": {...}}
-    Server->>-WS: Send response JSON
-    WS->>-Bridge: Forward response
-    Bridge->>Bridge: Parse JSON & check errors
-    Bridge-->>-Python: Return result or throw exception
-```
 
 ### Command Encoding Process
 
